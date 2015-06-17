@@ -9,8 +9,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Chronometer;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,10 +39,22 @@ public class ListActivity extends Activity {
         chrono   = (Chronometer) findViewById(R.id.chronometer);
 
         // Defined Array values to show in ListView
-        String[] values = new String[200];
-        for (int i=0; i<200; i++) {
+        //String[] values = new String[200];
+        /*for (int i=0; i<200; i++) {
             values[i] = "Activité n" + i;
+        }*/
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.listeprojets)));
+        ArrayList<String> values=new ArrayList<>();
+        try {
+            String line;
+            while ((line = in.readLine())!=null) {
+                values.add(line);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
         }
+
 
         // Define a new Adapter
         // First parameter - Context
@@ -47,7 +62,7 @@ public class ListActivity extends Activity {
         // Third parameter - ID of the TextView to which the data is written
         // Forth - the Array of data
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, android.R.id.text1, values);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
