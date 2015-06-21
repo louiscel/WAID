@@ -1,30 +1,30 @@
 package com.ca.wayd;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Chronometer;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ListActivity extends Activity {
+public class MainActivity extends ListActivity {
 
-    private ListView listView;
+
     private TextView textView;
     private Chronometer chrono;
     private String currentActivity;
     private long     startedTime = 0;
     private Map<String, Long> timers;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,27 +34,22 @@ public class ListActivity extends Activity {
         setContentView(R.layout.list_activity);
 
         // Get ListView object from xml
-        listView = (ListView) findViewById(R.id.list);
         textView = (TextView) findViewById(R.id.text);
-        chrono   = (Chronometer) findViewById(R.id.chronometer);
+        chrono = (Chronometer) findViewById(R.id.chronometer);
 
-        // Defined Array values to show in ListView
-        //String[] values = new String[200];
-        /*for (int i=0; i<200; i++) {
-            values[i] = "Activité n" + i;
-        }*/
 
         BufferedReader in = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.listeprojets)));
-        ArrayList<String> values=new ArrayList<>();
+        String[] values = new String[200];
         try {
             String line;
-            while ((line = in.readLine())!=null) {
-                values.add(line);
+            int i=0;
+            while ((line = in.readLine()) != null && i<200) {
+                values[i]=line;
+                i++;
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         // Define a new Adapter
         // First parameter - Context
@@ -62,27 +57,28 @@ public class ListActivity extends Activity {
         // Third parameter - ID of the TextView to which the data is written
         // Forth - the Array of data
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        //ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.project_line_layout, R.id.projectLabel, values);
+
+        CustomAdapter adapter=new CustomAdapter(this,values);
 
         // Assign adapter to ListView
-        listView.setAdapter(adapter);
-
-        // Listener sur les events "click"
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Récupération de la valeur cliquée
-                String  itemValue    = (String) listView.getItemAtPosition(position);
-                textView.setText(itemValue);
-                startChrono(itemValue);
-                // Affiche les infos de l'activité sélectionnée
-                //Toast.makeText(getApplicationContext(),"Activité sélectionnée : " + position + "  Valeur : " + itemValue, Toast.LENGTH_LONG).show();
-
-            }
-
-        });
+        setListAdapter(adapter);
     }
+
+
+
+    @Override
+    protected void onListItemClick(ListView list, View view, int position, long id) {
+        super.onListItemClick(list,view,position,id);
+        // Récupération de la valeur cliquée
+        String  itemValue    = (String)getListView().getItemAtPosition(position);
+        textView.setText(itemValue);
+        startChrono(itemValue);
+        // Affiche les infos de l'activité sélectionnée
+        Toast.makeText(getApplicationContext(), "Activité sélectionnée : " + position + "  Valeur : " + itemValue, Toast.LENGTH_LONG).show();
+
+    }
+
 
     private void startChrono(String activityId) {
         // Récupération de l'heure courante
@@ -104,4 +100,6 @@ public class ListActivity extends Activity {
         chrono.stop();
         chrono.start();
     }
+
+
 }
